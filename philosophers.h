@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/30 16:35:10 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/07/31 15:22:33 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/08/01 10:13:19 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,25 @@
 # include <pthread.h>
 # include <stdio.h>
 # include <stdlib.h>
+
+typedef struct s_foucault
+{
+	int			i;
+	pthread_t	*th;
+	t_foucault	*previous;
+	t_foucault	*next;
+}	t_foucault;
+
+typedef struct s_data
+{
+	int	i;
+	int	ttd;
+	int	tte;
+	int	tts;
+	int	number_of_times_each_philosopher_must_eat;
+	int	fork;
+}	t_data;
+
 
 //threads
 void			free_it(void **array);
