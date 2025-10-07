@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/30 16:35:10 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/01 17:39:41 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/07 11:18:53 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,10 +30,10 @@
  */
 typedef struct s_foucault
 {
-	int			i;
-	pthread_t	*th;
-	t_foucault	*previous;
-	t_foucault	*next;
+	int					i;
+	pthread_t			*th;
+	struct s_foucault	*previous;
+	struct s_foucault	*next;
 }	t_foucault;
 
 /**
