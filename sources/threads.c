@@ -6,87 +6,53 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/30 16:34:58 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/07 11:18:04 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/07 17:28:03 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../headers/philosophers.h"
 
-void	free_it(void **array)
+int	create_michels(t_data *data)
 {
 	int	i;
 
-	i = 0;
-	while (array[i++])
+	i = -1;
+	while (++i < data->nb)
 	{
-		free(array[i]);
-		array[i] = NULL;
+		data->foucault_array[i] = malloc(sizeof(t_foucault));
+		if (!data->foucault_array[i])
+			return (printf(ERROR2), 1);
+		memset(data->foucault_array[i], 0, sizeof(t_foucault));
+		data->foucault_array[i]->name = i + 1;
+		data->foucault_array[i]->data = data;
+		if (pthread_create(&data->foucault_array[i]->thread, NULL,
+				discipline_punish, data->foucault_array[i]))
+			return (printf("Error creating thread\n"), 1);
+
 	}
-	free(array);
-	array = NULL;
-}
-
-void	*ft_print(void *args)
-{
-	char	*arg;
-
-	arg = (char *)args;
-	printf("%s\n", arg);
-	return (NULL);
-}
-
-pthread_t	**create_threads(int i)
-{
-	pthread_t		**array;
-	int				j;
-	void			*args;
-
-	array = calloc(i + 1, sizeof(pthread_t *));
-	if (!array)
-		return (NULL);
-	j = 0;
-	while (j++ < i)
-	{
-		array[j] = calloc(1, sizeof(pthread_t));
-		if (!array[j])
-			return (free_it((void **)array), NULL);
-	}
-	j = 0;
-	args = "Test thread";
-	while (j++ < i)
-	{
-		if (pthread_create(array[j], NULL, ft_print, args) == 0)
-		{
-			pthread_join(*array[j], NULL);
-			printf("Thread created : %p\n", (void *)array[j]);
-		}
-	}
-	return (array);
-}
-
-/* void	*ft_print(void *args)
-{
-	char	*arg;
-
-	arg = (char *)args;
-	printf("%s\n", arg);
-	return (NULL);
-}
-
-int	main(void)
-{
-	pthread_t	thread;
-	void		*args;
-	char		arg[5] = "Test";
-
-	args = (void *)arg;
-	if (pthread_create(&thread, NULL, ft_print, args) == 0)
-	{	
-		pthread_join(thread, NULL);
-		printf("Thread created : %p\n", (void *)&thread);
-	}
-	else
-		printf("Can't create thread.\n");
 	return (0);
 }
- */
+
+void	*discipline_punish(void *arg)
+{
+	t_foucault	*philo;
+
+	philo = (t_foucault *)arg;
+	while (philo->how_many_times_ate < philo->data->notepme
+		|| philo->data->notepme == -1)
+	{
+		pthread_mutex_lock(philo->left_fork);
+		printf("%lld %d has taken a fork\n", get_time_ms(), philo->name);
+		pthread_mutex_lock(philo->right_fork);
+		printf("%lld %d has taken a fork\n", get_time_ms(), philo->name);
+		printf("%lld %d is eating\n", get_time_ms(), philo->name);
+	}
+}
+
+// Donner les fouchettes (2 au premier, 1 aux autres)
+// Prendre les fourchettes 
+// Manger
+// Poser les fourchettes
+// Dormir
+// Penser
+// Recommencer

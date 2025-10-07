@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/30 16:35:10 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/07 11:18:53 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/07 17:21:16 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,23 +20,6 @@
 # include <stdlib.h>
 
 /**
- * @brief Structure representing a philosopher (reference to Michel Foucault).
- * 
- * @note Foucault is a reference to Michel Foucault, a French philosopher.
- * @param i Index of the philosopher.
- * @param th Thread of the philosopher.
- * @param previous Pointer to the previous philosopher in the list.
- * @param next Pointer to the next philosopher in the list.
- */
-typedef struct s_foucault
-{
-	int					i;
-	pthread_t			*th;
-	struct s_foucault	*previous;
-	struct s_foucault	*next;
-}	t_foucault;
-
-/**
  * @brief Structure for simulation data.
  * 
  * @param nb Number of philosophers.
@@ -45,7 +28,8 @@ typedef struct s_foucault
  * @param tts Time to sleep.
  * @param notepme Number of times each philosopher must eat. Optional,
  * simulation stops when all have eaten at least this many times.
- * @param fork Number of forks.
+ * @param foucault Double pointer to philosopher threads. 
+ * @param mutex Pointer to mutex for forks.
  */
 typedef struct s_data
 {
@@ -54,17 +38,39 @@ typedef struct s_data
 	int				tte;
 	int				tts;
 	int				notepme;
-	int				fork;
-	pthread_mutex_t	*mutex;
+	t_foucault		**foucault_array;
+	pthread_mutex_t	**fork_array;
 }	t_data;
 
+/**
+ * @brief Structure for each philosopher.
+ * 
+ * @note foucault name is a reference to Michel Foucault, a french philosopher
+ * who wrote about power structures and social dynamics, which can be linked to
+ * the dining philosophers problem.
+ * @param name Philosopher's number (starts at 1).
+ * @param thread Pointer to the philosopher's thread.
+ * @param left_fork Pointer to the left fork mutex.
+ * @param right_fork Pointer to the right fork mutex.
+ * @param how_many_times_ate How many times the philosopher has eaten.
+ * @param last_meal_time Timestamp of the last meal time in milliseconds.
+ * @param data Pointer to the shared simulation data.
+ */
+typedef struct s_foucault
+{
+	int				name;
+	pthread_t		*thread;
+	pthread_mutex_t	*left_fork;
+	pthread_mutex_t	*right_fork;
+	int				how_many_times_ate;
+	long long int	last_meal_time;
+	t_data			*data;
+}	t_foucault;
 
 // threads.c
-void			free_it(void **array);
-void			*ft_print(void *args);
-pthread_t		**create_threads(int i);
 
-// libft.c
+
+// utils.c
 /**
  * @brief Reproduce strlen function.
  * 
@@ -92,9 +98,17 @@ int				ft_isint(char *str);
  * @return long long int Converted value.
  */
 long long int	ft_atol(const char *str);
+/**
+ * @brief Free a double pointer array.
+ * 
+ * @param[in, out] array Double pointer array to free.
+ * @note Does not verify if the pointers exits.
+ */
+void			free_it(void **array);
 
 # define USAGE "./philosophers number_of_philosophers time_to_die time_to_eat "
 # define USAGE2 "time_to_sleep [number_of_times_each_philosopher_must_eat]\n"
 # define ERROR1 "Not a number or int or above 0.\n"
+# define ERROR2 "Can't allocate memory.\n"
 
 #endif

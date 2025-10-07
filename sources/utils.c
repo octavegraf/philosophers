@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   libft.c                                            :+:      :+:    :+:   */
+/*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/30 17:28:04 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/07 11:18:07 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/07 11:32:53 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,4 +76,18 @@ long long int	ft_atol(const char *str)
 		i++;
 	}
 	return (nb * minus);
+}
+
+void	free_it(void **array)
+{
+	int	i;
+
+	i = 0;
+	while (array[i++])
+	{
+		free(array[i]);
+		array[i] = NULL;
+	}
+	free(array);
+	array = NULL;
 }
