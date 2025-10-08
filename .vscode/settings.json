@@ -5,5 +5,9 @@
 		"stdio.h": "c",
 		"unistd.h": "c",
 		"type_traits": "c"
+	},
+	"editor.tokenColorCustomizations": {
+		"comments": "",
+		"textMateRules": []
 	}
 }

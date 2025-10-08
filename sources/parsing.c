@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 11:48:26 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/08 11:51:50 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/08 17:31:08 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,10 +33,9 @@ t_data	*initialize_data(int argc, char **argv)
 		data->notepme = ft_atol(argv[5]);
 	data->foucault_array = malloc(sizeof(t_foucault) * (data->nb + 1));
 	if (!data->foucault_array)
-		return (free(data), printf(ERROR2), NULL);
+		return (printf(ERROR2), exit_all(data, 1), NULL);
 	data->fork_array = malloc(sizeof(pthread_mutex_t) * (data->nb + 1));
 	if (!data->fork_array)
-		return (free(data->foucault_array), free(data), printf(ERROR2), NULL);
+		return (printf(ERROR2), exit_all(data, 1), NULL);
 	return (data);
 }
-
