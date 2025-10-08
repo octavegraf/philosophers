@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 17:02:46 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/07 17:19:27 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/08 11:51:32 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@ int	create_forks(t_data *data)
 {
 	int	i;
 
+	i = -1;
 	while (++i < data->nb)
 	{
 		data->fork_array[i] = malloc(sizeof(pthread_mutex_t));

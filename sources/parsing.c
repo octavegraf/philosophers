@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 11:48:26 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/07 16:51:11 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/08 11:51:50 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ t_data	*initialize_data(int argc, char **argv)
 	t_data	*data;
 	int		i;
 
+	i = 0;
 	data = malloc(sizeof(t_data));
 	if (!data)
 		return (NULL);

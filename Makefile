@@ -27,5 +27,5 @@ fclean				: clean
 
 re					: fclean all
 
-.PHONY: all clean fclean re submodules
+.PHONY: all clean fclean re
 .DELETE_ON_ERROR:

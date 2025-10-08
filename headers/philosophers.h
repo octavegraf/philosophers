@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/30 16:35:10 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/07 17:21:16 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/08 14:57:22 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,12 @@
 # include <pthread.h>
 # include <stdio.h>
 # include <stdlib.h>
+# include <string.h>
+# include <sys/time.h>
+# include <stdbool.h>
+# include <errno.h>
 
+typedef struct s_foucault	t_foucault;
 /**
  * @brief Structure for simulation data.
  * 
