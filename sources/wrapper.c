@@ -1,16 +1,44 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   wrapper.c.c                                        :+:      :+:    :+:   */
+/*   wrapper.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/30 17:26:55 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/07 12:01:34 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/08 17:21:30 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../headers/philosophers.h"
+
+void	exit_all(t_data *data, int exit_code)
+{
+	int	i;
+
+	i = -1;
+	if (!data)
+		exit(exit_code);
+	while (++i < data->nb)
+	{
+		if (data->fork_array && data->foucault_array[i])
+		{
+			pthread_detach(*data->foucault_array[i]->thread);
+			free(data->foucault_array[i]);
+		}
+		if (data->fork_array && data->fork_array[i])
+		{
+			pthread_mutex_destroy(data->fork_array[i]);
+			free(data->fork_array[i]);
+		}
+	}
+	if (data->foucault_array)
+		free(data->foucault_array);
+	if (data->fork_array)
+		free(data->fork_array);
+	free(data);
+	exit(exit_code);
+}
 
 int	main(int argc, char **argv)
 {
@@ -22,6 +50,7 @@ int	main(int argc, char **argv)
 	if (!data)
 		return (1);
 	create_threads(ft_atol(argv[1]));
+	exit_all(data, 0);
 }
 
 // Parsing
