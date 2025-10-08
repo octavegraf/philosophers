@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/30 16:35:10 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/08 14:57:22 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/08 17:42:34 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,10 +72,21 @@ typedef struct s_foucault
 	t_data			*data;
 }	t_foucault;
 
-// threads.c
+//	mutex.c
+int				create_forks(t_data *data);
+int				distribute_forks(t_data *data);
 
+// parsing.c
+t_data			*initialize_data(int argc, char **argv);
 
-// utils.c
+//	threads.c
+
+int				create_michels(t_data *data, bool avoid_even_numbers);
+void			*discipline_punish(void *arg);
+int				fork_handler(t_foucault *philo);
+int				has_fork(t_foucault *philo, bool *has_fork);
+
+//	utils.c
 /**
  * @brief Reproduce strlen function.
  * 
@@ -110,6 +121,9 @@ long long int	ft_atol(const char *str);
  * @note Does not verify if the pointers exits.
  */
 void			free_it(void **array);
+
+//	wrapper.c
+void			exit_all(t_data *data, int exit_code);
 
 # define USAGE "./philosophers number_of_philosophers time_to_die time_to_eat "
 # define USAGE2 "time_to_sleep [number_of_times_each_philosopher_must_eat]\n"
