@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/30 16:35:10 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/08 17:42:34 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/09 17:55:06 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,8 +33,9 @@ typedef struct s_foucault	t_foucault;
  * @param tts Time to sleep.
  * @param notepme Number of times each philosopher must eat. Optional,
  * simulation stops when all have eaten at least this many times.
- * @param foucault Double pointer to philosopher threads. 
- * @param mutex Pointer to mutex for forks.
+ * @param foucault Pointer to philosophers structures.
+ * @param fork_array Pointer to array of mutex for forks.
+ * @param print_mutex Mutex to avoid data races when printing.
  */
 typedef struct s_data
 {
@@ -45,6 +46,7 @@ typedef struct s_data
 	int				notepme;
 	t_foucault		**foucault_array;
 	pthread_mutex_t	**fork_array;
+	pthread_mutex_t	print_mutex;
 }	t_data;
 
 /**
@@ -54,7 +56,7 @@ typedef struct s_data
  * who wrote about power structures and social dynamics, which can be linked to
  * the dining philosophers problem.
  * @param name Philosopher's number (starts at 1).
- * @param thread Pointer to the philosopher's thread.
+ * @param thread The philosopher's thread.
  * @param left_fork Pointer to the left fork mutex.
  * @param right_fork Pointer to the right fork mutex.
  * @param how_many_times_ate How many times the philosopher has eaten.
@@ -64,7 +66,7 @@ typedef struct s_data
 typedef struct s_foucault
 {
 	int				name;
-	pthread_t		*thread;
+	pthread_t		thread;
 	pthread_mutex_t	*left_fork;
 	pthread_mutex_t	*right_fork;
 	int				how_many_times_ate;
@@ -79,12 +81,23 @@ int				distribute_forks(t_data *data);
 // parsing.c
 t_data			*initialize_data(int argc, char **argv);
 
+// print.c
+/**
+ * @brief Lock / unlock the print mutex to avoid data race when printing.
+ * 
+ * @param data[in, out] Structure for simulation data.
+ * @return int 0 on success, 1 if the mutex is already locked, -1 on error.
+ */
+int				print_mutex(t_data *data);
+
 //	threads.c
 
-int				create_michels(t_data *data, bool avoid_even_numbers);
+int				create_michels(t_data *data);
+int				start_threads(t_data *data);
 void			*discipline_punish(void *arg);
 int				fork_handler(t_foucault *philo);
-int				has_fork(t_foucault *philo, bool *has_fork);
+int				has_fork(t_foucault *philo, pthread_mutex_t *fork,
+					bool *has_fork);
 
 //	utils.c
 /**
@@ -129,5 +142,22 @@ void			exit_all(t_data *data, int exit_code);
 # define USAGE2 "time_to_sleep [number_of_times_each_philosopher_must_eat]\n"
 # define ERROR1 "Not a number or int or above 0.\n"
 # define ERROR2 "Can't allocate memory.\n"
+# define ERROR3 "Error locking/unlocking mutex\n"
+# define ERROR4 "Error creating/destroying mutex\n"
+
+/**
+ * @brief Status codes for print_mutex function.
+ * @param PM_LOCKED Mutex successfully locked.
+ * @param PM_UNLOCKED Mutex successfully unlocked.
+ * @param PM_ALREADY_LOCKED Mutex was already locked somewhere else.
+ * @param PM_ERROR An error occurred while locking or unlocking the mutex.
+ */
+enum	e_print_mutex_status
+{
+	PM_LOCKED,
+	PM_UNLOCKED,
+	PM_ALREADY_LOCKED,
+	PM_ERROR
+};
 
 #endif
