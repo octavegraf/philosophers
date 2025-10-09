@@ -6,34 +6,24 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/30 16:34:58 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/08 17:33:14 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/09 17:55:07 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../headers/philosophers.h"
 
-int	create_michels(t_data *data, bool avoid_even_numbers)
+int	start_threads(t_data *data)
 {
-	int		i;
+	int	i;
 
-	i = avoid_even_numbers - 1;
+	i = -1;
 	while (++i < data->nb)
 	{
-		data->foucault_array[i] = malloc(sizeof(t_foucault));
-		if (!data->foucault_array[i])
-			return (printf(ERROR2), 1);
-		memset(data->foucault_array[i], 0, sizeof(t_foucault));
-		data->foucault_array[i]->name = i + 1;
-		data->foucault_array[i]->data = data;
-		if (i % 2 == 0)
-			if (pthread_create(data->foucault_array[i]->thread, NULL,
-					discipline_punish, data->foucault_array[i]))
-				return (printf("Error creating thread\n"),
-					exit_all(data, 1), 1);
-		++i;
+		if (pthread_create(&data->foucault_array[i]->thread, NULL,
+				discipline_punish, data->foucault_array[i]))
+			return (printf("Error creating thread\n"),
+				exit_all(data, 1), 1);
 	}
-	if (!avoid_even_numbers)
-		create_michels(data, true);
 	return (0);
 }
 
@@ -64,47 +54,4 @@ void	*discipline_punish(void *arg)
 		printf("%s %d is thinking\n", "[TIME]", philo->name);
 	}
 	return (NULL);
-}
-
-int	fork_handler(t_foucault *philo)
-{
-	bool	has_left_fork;
-	bool	has_right_fork;
-	int		return_value;
-
-	has_left_fork = false;
-	has_right_fork = false;
-	while (!has_left_fork || !has_right_fork)
-	{
-		if (!has_left_fork)
-			return_value = has_fork(philo, &has_left_fork);
-		if (return_value < 0)
-			return (1);
-		if (!has_right_fork)
-			return_value = has_fork(philo, &has_right_fork);
-		if (return_value < 0)
-			return (1);
-		return_value = 0;
-	}
-	return (0);
-}
-
-int	has_fork(t_foucault *philo, bool *has_fork)
-{
-	int	return_value;
-
-	while (!*has_fork)
-	{
-		return_value = pthread_mutex_lock(philo->left_fork);
-		if (!return_value)
-		{
-			printf("%s %d has taken a fork\n", "[TIME]", philo->name);
-			*has_fork = true;
-			return (0);
-		}
-		else if (return_value != EBUSY || return_value != EDEADLK)
-			return (printf("Error locking mutex\n. Quitting"),
-				exit_all(philo->data, 1), -1);
-	}
-	return (1);
 }
