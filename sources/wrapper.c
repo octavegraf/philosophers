@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/30 17:26:55 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/08 17:42:47 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/09 17:58:37 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,9 +21,9 @@ void	exit_all(t_data *data, int exit_code)
 		exit(exit_code);
 	while (++i < data->nb)
 	{
-		if (data->fork_array && data->foucault_array[i])
+		if (data->foucault_array && data->foucault_array[i])
 		{
-			pthread_detach(*data->foucault_array[i]->thread);
+			pthread_detach(data->foucault_array[i]->thread);
 			free(data->foucault_array[i]);
 		}
 		if (data->fork_array && data->fork_array[i])
@@ -32,6 +32,7 @@ void	exit_all(t_data *data, int exit_code)
 			free(data->fork_array[i]);
 		}
 	}
+	pthread_mutex_destroy(&data->print_mutex);
 	if (data->foucault_array)
 		free(data->foucault_array);
 	if (data->fork_array)
@@ -49,6 +50,10 @@ int	main(int argc, char **argv)
 	data = initialize_data(argc, argv);
 	if (!data)
 		return (1);
+	create_michels(data);
+	create_forks(data);
+	distribute_forks(data);
+	start_threads(data);
 	exit_all(data, 0);
 }
 
