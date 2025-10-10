@@ -10,6 +10,13 @@
 			"cwd": "${workspaceFolder}",
 			"console": "integratedTerminal",
 			"preLaunchTask": "build",
+			"initCommands": [
+				"settings set target.process.follow-fork-mode child",
+				"settings set target.process.stop-on-exec false"
+			],
+			"postRunCommands": [
+				"thread list"
+			]
 		}
 	]
 }
