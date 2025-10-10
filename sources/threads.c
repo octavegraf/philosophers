@@ -6,24 +6,27 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/30 16:34:58 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/09 17:55:07 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/10 14:40:45 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../headers/philosophers.h"
 
-int	start_threads(t_data *data)
+int	start_threads(t_data *data, bool avoid_deadlock)
 {
 	int	i;
 
-	i = -1;
-	while (++i < data->nb)
+	i = avoid_deadlock;
+	while (i < data->nb)
 	{
 		if (pthread_create(&data->foucault_array[i]->thread, NULL,
 				discipline_punish, data->foucault_array[i]))
 			return (printf("Error creating thread\n"),
 				exit_all(data, 1), 1);
+		i += 2;
 	}
+	if (!avoid_deadlock)
+		start_threads(data, !avoid_deadlock);
 	return (0);
 }
 

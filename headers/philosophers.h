@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/30 16:35:10 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/09 17:55:06 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/10 14:32:10 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,7 +93,7 @@ int				print_mutex(t_data *data);
 //	threads.c
 
 int				create_michels(t_data *data);
-int				start_threads(t_data *data);
+int				start_threads(t_data *data, bool avoid_deadlock);
 void			*discipline_punish(void *arg);
 int				fork_handler(t_foucault *philo);
 int				has_fork(t_foucault *philo, pthread_mutex_t *fork,

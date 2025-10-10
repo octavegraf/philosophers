@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 17:02:46 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/09 17:55:06 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/10 14:44:26 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,10 +93,8 @@ int	has_fork(t_foucault *philo, pthread_mutex_t *fork, bool *has_fork)
 			*has_fork = true;
 			return (0);
 		}
-		else if (return_value != EBUSY || return_value != EDEADLK)
-			return (printf(ERROR3),
-				exit_all(philo->data, 1), 1);
+		else if (return_value != EBUSY && return_value != EDEADLK)
+			return (printf(ERROR3), exit_all(philo->data, 1), 1);
 	}
 	return (1);
 }
- 
