@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 17:02:46 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/10 14:44:26 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/13 13:55:27 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,6 @@ int	create_forks(t_data *data)
 
 	i = -1;
 	memset(data->fork_array, 0, sizeof(pthread_mutex_t *) * (data->nb + 1));
-	if (pthread_mutex_init(&data->print_mutex, NULL))
-		return (printf(ERROR4), exit_all(data, 1), 1);
 	while (++i < data->nb)
 	{
 		data->fork_array[i] = malloc(sizeof(pthread_mutex_t));
@@ -38,63 +36,39 @@ int	distribute_forks(t_data *data)
 	i = -1;
 	while (++i < data->nb)
 	{
-		if (i == data->nb - 1)
-		{
-			data->foucault_array[i]->left_fork = data->fork_array[i];
-			data->foucault_array[i]->right_fork = data->fork_array[0];
-		}
-		else
-		{
-			data->foucault_array[i]->left_fork = data->fork_array[i];
+		data->foucault_array[i]->left_fork = data->fork_array[i];
+		if (i < data->nb - 1)
 			data->foucault_array[i]->right_fork = data->fork_array[i + 1];
-		}
+		else
+			data->foucault_array[i]->right_fork = data->fork_array[0];
 	}
 	return (0);
 }
 
 int	fork_handler(t_foucault *philo)
 {
-	bool	has_left_fork;
-	bool	has_right_fork;
-	int		return_value;
+	pthread_mutex_t	*first_fork;
+	pthread_mutex_t	*second_fork;
+	int				return_value;
 
-	has_left_fork = false;
-	has_right_fork = false;
-	while (!has_left_fork || !has_right_fork)
+	if (philo->name % 2 == 0)
 	{
-		if (!has_left_fork)
-			return_value = has_fork(philo, philo->left_fork, &has_left_fork);
-		if (return_value < 0)
-			return (1);
-		if (!has_right_fork)
-			return_value = has_fork(philo, philo->right_fork, &has_right_fork);
-		if (return_value < 0)
-			return (1);
-		return_value = 0;
+		first_fork = philo->left_fork;
+		second_fork = philo->right_fork;
 	}
+	else
+	{
+		first_fork = philo->right_fork;
+		second_fork = philo->left_fork;
+	}
+	return_value = pthread_mutex_lock(first_fork);
+	if (return_value != 0)
+		return (printf(ERROR3), exit_all(philo->data, 1), 1);
+	print_action(philo, "has taken a fork");
+	return_value = pthread_mutex_lock(second_fork);
+	if (return_value != 0)
+		return (pthread_mutex_unlock(first_fork),
+			printf(ERROR3), exit_all(philo->data, 1), 1);
+	print_action(philo, "has taken a fork");
 	return (0);
-}
-
-int	has_fork(t_foucault *philo, pthread_mutex_t *fork, bool *has_fork)
-{
-	int	return_value;
-
-	while (!*has_fork)
-	{
-		return_value = pthread_mutex_lock(fork);
-		if (!return_value)
-		{
-			while (1)
-				if (print_mutex(philo->data) == PM_LOCKED)
-					break ;
-			printf("%s %d has taken a fork\n", "[TIME]", philo->name);
-			if (print_mutex(philo->data) != PM_UNLOCKED)
-				return (exit_all(philo->data, 1), 1);
-			*has_fork = true;
-			return (0);
-		}
-		else if (return_value != EBUSY && return_value != EDEADLK)
-			return (printf(ERROR3), exit_all(philo->data, 1), 1);
-	}
-	return (1);
 }

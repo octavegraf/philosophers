@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/30 17:26:55 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/10 14:32:24 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/13 13:17:06 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,18 +21,16 @@ void	exit_all(t_data *data, int exit_code)
 		exit(exit_code);
 	while (++i < data->nb)
 	{
-		if (data->foucault_array && data->foucault_array[i])
-		{
-			pthread_detach(data->foucault_array[i]->thread);
-			free(data->foucault_array[i]);
-		}
 		if (data->fork_array && data->fork_array[i])
 		{
 			pthread_mutex_destroy(data->fork_array[i]);
 			free(data->fork_array[i]);
 		}
+		if (data->foucault_array && data->foucault_array[i])
+			free(data->foucault_array[i]);
 	}
 	pthread_mutex_destroy(&data->print_mutex);
+	pthread_mutex_destroy(&data->start_mutex);
 	if (data->foucault_array)
 		free(data->foucault_array);
 	if (data->fork_array)
@@ -44,6 +42,7 @@ void	exit_all(t_data *data, int exit_code)
 int	main(int argc, char **argv)
 {
 	t_data	*data;
+	int		i;
 
 	if (argc != 5 && argc != 6)
 		return (ft_putstr(USAGE), ft_putstr(USAGE2), 1);
@@ -54,7 +53,12 @@ int	main(int argc, char **argv)
 	create_forks(data);
 	distribute_forks(data);
 	start_threads(data, false);
-	sleep(10);
+	pthread_mutex_lock(&data->start_mutex);
+	data->simulation_started = true;
+	pthread_mutex_unlock(&data->start_mutex);
+	i = -1;
+	while (++i < data->nb)
+		pthread_join(data->foucault_array[i]->thread, NULL);
 	exit_all(data, 0);
 }
 

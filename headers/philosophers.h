@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/30 16:35:10 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/10 14:32:10 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/13 13:55:09 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 # include <sys/time.h>
 # include <stdbool.h>
 # include <errno.h>
+# include <stdarg.h>
 
 typedef struct s_foucault	t_foucault;
 /**
@@ -36,6 +37,8 @@ typedef struct s_foucault	t_foucault;
  * @param foucault Pointer to philosophers structures.
  * @param fork_array Pointer to array of mutex for forks.
  * @param print_mutex Mutex to avoid data races when printing.
+ * @param start_mutex Mutex to control the start of the simulation.
+ * @param simulation_started Boolean indicating if the simulation has started.
  */
 typedef struct s_data
 {
@@ -47,6 +50,8 @@ typedef struct s_data
 	t_foucault		**foucault_array;
 	pthread_mutex_t	**fork_array;
 	pthread_mutex_t	print_mutex;
+	pthread_mutex_t	start_mutex;
+	bool			simulation_started;
 }	t_data;
 
 /**
@@ -83,21 +88,20 @@ t_data			*initialize_data(int argc, char **argv);
 
 // print.c
 /**
- * @brief Lock / unlock the print mutex to avoid data race when printing.
+ * @brief Print a formatted message respecting mutex locking.
  * 
- * @param data[in, out] Structure for simulation data.
- * @return int 0 on success, 1 if the mutex is already locked, -1 on error.
+ * @param size[in] Number of arguments to print.
+ * @param data [in, out] Structure for simulation data.
+ * @param ... Arguments to print.
  */
-int				print_mutex(t_data *data);
-
+void			print_phrase(t_data *data, int size, ...);
+void			print_action(t_foucault *philo, char *action);
 //	threads.c
 
 int				create_michels(t_data *data);
 int				start_threads(t_data *data, bool avoid_deadlock);
 void			*discipline_punish(void *arg);
 int				fork_handler(t_foucault *philo);
-int				has_fork(t_foucault *philo, pthread_mutex_t *fork,
-					bool *has_fork);
 
 //	utils.c
 /**
@@ -135,6 +139,15 @@ long long int	ft_atol(const char *str);
  */
 void			free_it(void **array);
 
+//	utils2.c
+/**
+ * @brief Convert an integer to a string.
+ *
+ * @param n Integer to convert.
+ * @return char* Pointer to the resulting string.
+ */
+char			*ft_itoa(int n);
+
 //	wrapper.c
 void			exit_all(t_data *data, int exit_code);
 
@@ -147,17 +160,18 @@ void			exit_all(t_data *data, int exit_code);
 
 /**
  * @brief Status codes for print_mutex function.
- * @param PM_LOCKED Mutex successfully locked.
- * @param PM_UNLOCKED Mutex successfully unlocked.
- * @param PM_ALREADY_LOCKED Mutex was already locked somewhere else.
- * @param PM_ERROR An error occurred while locking or unlocking the mutex.
+ * @param KED Mutex successfully locked.
+ * @param OCKED Mutex successfully unlocked.
+ * @param EADY_LOCKED Mutex was already locked somewhere else.
+ * @param OR An error occurred while locking or unlocking the mutex.
  */
-enum	e_print_mutex_status
+
+enum	e_mutex_status
 {
-	PM_LOCKED,
-	PM_UNLOCKED,
-	PM_ALREADY_LOCKED,
-	PM_ERROR
+	LOCKED,
+	UNLOCKED,
+	ALREADY_LOCKED,
+	ERROR
 };
 
 #endif
