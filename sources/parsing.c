@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 11:48:26 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/13 13:57:21 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/13 15:19:43 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ t_data	*initialize_data(int argc, char **argv)
 	return (data);
 }
 
-int	create_michels(t_data *data)
+int	create_foucaults(t_data *data)
 {
 	int		i;
 

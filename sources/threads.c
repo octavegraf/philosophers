@@ -6,17 +6,16 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/30 16:34:58 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/13 15:06:13 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/13 15:22:55 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../headers/philosophers.h"
 
-int	start_threads(t_data *data, bool avoid_deadlock)
+int	start_threads(t_data *data)
 {
 	int	i;
 
-	(void)avoid_deadlock;
 	i = 0;
 	while (i < data->nb)
 	{

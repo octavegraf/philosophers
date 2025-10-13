@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/30 16:35:10 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/13 13:55:09 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/13 15:39:48 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,27 +80,78 @@ typedef struct s_foucault
 }	t_foucault;
 
 //	mutex.c
+/**
+ * @brief Create a forks array and initialize mutexes.
+ * 
+ * @param[in, out] data Structure for simulation data.
+ * @return int 0 on success, 1 on failure.
+ */
 int				create_forks(t_data *data);
+/**
+ * @brief Distribute forks to t_foucault structures.
+ * 
+ * @param[in, out] data Structure for simulation data.
+ * @return int 0 on success, 1 on failure.
+ */
 int				distribute_forks(t_data *data);
 
 // parsing.c
+/**
+ * @brief Initialize the data structure.
+ * 
+ * @param[in] argc Number of arguments.
+ * @param[in] argv Arguments array.
+ * @return t_data* Pointer to the initialized data structure,
+ * or NULL on failure.
+ */
 t_data			*initialize_data(int argc, char **argv);
 
 // print.c
 /**
  * @brief Print a formatted message respecting mutex locking.
  * 
- * @param size[in] Number of arguments to print.
- * @param data [in, out] Structure for simulation data.
- * @param ... Arguments to print.
+ * @param[in] size Number of arguments to print.
+ * @param[in, out] data Structure for simulation data.
+ * @param[in] ... Arguments to print.
  */
 void			print_phrase(t_data *data, int size, ...);
+/**
+ * @brief Print an action of a philosopher with timescode.
+ * 
+ * @param[in] philo Philosopher structure.
+ * @param[in] action String describing the action.
+ */
 void			print_action(t_foucault *philo, char *action);
-//	threads.c
 
-int				create_michels(t_data *data);
-int				start_threads(t_data *data, bool avoid_deadlock);
+//	threads.c
+/**
+ * @brief Create foucault array and initialize each philosopher.
+ * 
+ * @param[in, out] data Structure for simulation data.
+ * @return int 0 on success, 1 on failure.
+ */
+int				create_foucaults(t_data *data);
+/**
+ * @brief Start all philosopher threads.
+ * 
+ * @param[in, out] data Structure for simulation data.
+ * @return int 0 on success, 1 on failure.
+ */
+int				start_threads(t_data *data);
+/**
+ * @brief Philosopher's routine function.
+ * 
+ * @param[in, out] arg Pointer to the philosopher structure. Threads needs a 
+ * void* argument.
+ * @return void* 
+ */
 void			*discipline_punish(void *arg);
+/**
+ * @brief Handle fork acquisition for a philosopher.
+ * 
+ * @param[in, out] philo Philosopher structure.
+ * @return int 0 on success, 1 on failure.
+ */
 int				fork_handler(t_foucault *philo);
 
 //	utils.c
@@ -138,17 +189,13 @@ long long int	ft_atol(const char *str);
  * @note Does not verify if the pointers exits.
  */
 void			free_it(void **array);
-
-//	utils2.c
-/**
- * @brief Convert an integer to a string.
- *
- * @param n Integer to convert.
- * @return char* Pointer to the resulting string.
- */
-char			*ft_itoa(int n);
-
 //	wrapper.c
+/**
+ * @brief Free all allocated memory and exit the program.
+ * 
+ * @param[in, out] data Structure for simulation data.
+ * @param[in] exit_code Exit code to return.
+ */
 void			exit_all(t_data *data, int exit_code);
 
 # define USAGE "./philosophers number_of_philosophers time_to_die time_to_eat "
@@ -157,21 +204,5 @@ void			exit_all(t_data *data, int exit_code);
 # define ERROR2 "Can't allocate memory.\n"
 # define ERROR3 "Error locking/unlocking mutex\n"
 # define ERROR4 "Error creating/destroying mutex\n"
-
-/**
- * @brief Status codes for print_mutex function.
- * @param KED Mutex successfully locked.
- * @param OCKED Mutex successfully unlocked.
- * @param EADY_LOCKED Mutex was already locked somewhere else.
- * @param OR An error occurred while locking or unlocking the mutex.
- */
-
-enum	e_mutex_status
-{
-	LOCKED,
-	UNLOCKED,
-	ALREADY_LOCKED,
-	ERROR
-};
 
 #endif
