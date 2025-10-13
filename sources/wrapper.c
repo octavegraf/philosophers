@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/30 17:26:55 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/13 15:19:43 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/13 16:37:57 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ int	main(int argc, char **argv)
 	create_foucaults(data);
 	create_forks(data);
 	distribute_forks(data);
-	start_threads(data, false);
+	start_threads(data);
 	pthread_mutex_lock(&data->start_mutex);
 	data->simulation_started = true;
 	pthread_mutex_unlock(&data->start_mutex);

@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/30 16:35:10 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/13 15:39:48 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/13 17:00:00 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,7 @@ typedef struct s_data
 	pthread_mutex_t	print_mutex;
 	pthread_mutex_t	start_mutex;
 	bool			simulation_started;
+	struct timeval	*start_time;
 }	t_data;
 
 /**

@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 11:48:26 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/13 15:19:43 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/13 17:00:21 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@ static t_data	*initialize_data2(t_data *data)
 {
 	if (!data)
 		return (NULL);
+	gettimeofday(data->start_time);
 	data->foucault_array = malloc(sizeof(t_foucault *) * (data->nb + 1));
 	if (!data->foucault_array)
 		return (printf(ERROR2), exit_all(data, 1), NULL);
