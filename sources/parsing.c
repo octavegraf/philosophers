@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 11:48:26 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/13 17:00:21 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/14 16:51:58 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,6 @@ static t_data	*initialize_data2(t_data *data)
 {
 	if (!data)
 		return (NULL);
-	gettimeofday(data->start_time);
 	data->foucault_array = malloc(sizeof(t_foucault *) * (data->nb + 1));
 	if (!data->foucault_array)
 		return (printf(ERROR2), exit_all(data, 1), NULL);
@@ -43,6 +42,7 @@ t_data	*initialize_data(int argc, char **argv)
 	data->ttd = ft_atol(argv[2]);
 	data->tte = ft_atol(argv[3]);
 	data->tts = ft_atol(argv[4]);
+	gettimeofday(&data->start_time, NULL);
 	if (pthread_mutex_init(&data->print_mutex, NULL))
 		return (printf(ERROR4), exit_all(data, 1), NULL);
 	if (pthread_mutex_init(&data->start_mutex, NULL))
@@ -68,6 +68,7 @@ int	create_foucaults(t_data *data)
 		memset(data->foucault_array[i], 0, sizeof(t_foucault));
 		data->foucault_array[i]->name = i + 1;
 		data->foucault_array[i]->data = data;
+		gettimeofday(&data->foucault_array[i]->last_meal_time, NULL);
 	}
 	return (0);
 }
