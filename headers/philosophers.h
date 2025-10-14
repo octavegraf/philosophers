@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/30 16:35:10 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/13 17:00:00 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/14 16:53:10 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,8 @@ typedef struct s_data
 	pthread_mutex_t	print_mutex;
 	pthread_mutex_t	start_mutex;
 	bool			simulation_started;
-	struct timeval	*start_time;
+	struct timeval	start_time;
+	pthread_t		monitor_thread;
 }	t_data;
 
 /**
@@ -76,9 +77,13 @@ typedef struct s_foucault
 	pthread_mutex_t	*left_fork;
 	pthread_mutex_t	*right_fork;
 	int				how_many_times_ate;
-	long long int	last_meal_time;
+	struct timeval	last_meal_time;
 	t_data			*data;
 }	t_foucault;
+
+//	monitoring.c
+int				am_i_dead(t_foucault *philo);
+void			*monitoring(void *arg);
 
 //	mutex.c
 /**
@@ -123,6 +128,13 @@ void			print_phrase(t_data *data, int size, ...);
  * @param[in] action String describing the action.
  */
 void			print_action(t_foucault *philo, char *action);
+/**
+ * @brief Get the current time since the start of the program.
+ *
+ * @param[in] data Pointer to the simulation data structure.
+ * @return long long int Current time in milliseconds.
+ */
+long long int	current_time(t_data *data);
 
 //	threads.c
 /**
