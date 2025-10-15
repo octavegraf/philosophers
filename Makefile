@@ -2,7 +2,7 @@ CC					=	cc
 CFLAGS				=	-Wall -Wextra -Werror
 #F_SANITIZE			=	-fsanitize=address
 DEBUG_FLAGS			=	-g3 $(F_SANITIZE)
-NAME				=	philosophers
+NAME				=	philo
 HEADER_FOLDER		=	headers/
 HEADER				=	$(HEADER_FOLDER)philosophers.h
 SRC_FOLDER			=	sources/
