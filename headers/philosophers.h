@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/30 16:35:10 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/14 16:53:10 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/15 15:52:58 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,12 +77,34 @@ typedef struct s_foucault
 	pthread_mutex_t	*left_fork;
 	pthread_mutex_t	*right_fork;
 	int				how_many_times_ate;
+	pthread_mutex_t	death_mutex;
 	struct timeval	last_meal_time;
 	t_data			*data;
 }	t_foucault;
 
 //	monitoring.c
-int				am_i_dead(t_foucault *philo);
+/**
+ * @brief Check if a philosopher is dead.
+ * 
+ * @param philo Philosopher structure.
+ * @return True if the philosopher is dead, false otherwise.
+ */
+bool			am_i_dead(t_foucault *philo);
+/**
+ * @brief Check if all philosophers have eaten the required number of times.
+ *
+ * @param data Pointer to the simulation data.
+ * @return true if all philosophers have eaten the required number of times,
+ * false otherwise.
+ */
+bool			all_have_eaten(t_data *data);
+/**
+ * @brief Monitoring function for philosopher threads. Will check if any philosopher is dead.
+ * 
+ * @param arg Pointer to the simulation data structure. Threads needs a void*
+ * argument.
+ * @return void* Return NULL when finished.
+ */
 void			*monitoring(void *arg);
 
 //	mutex.c
@@ -100,7 +122,24 @@ int				create_forks(t_data *data);
  * @return int 0 on success, 1 on failure.
  */
 int				distribute_forks(t_data *data);
-
+/**
+ * @brief Read a variable protected by a mutex.
+ * 
+ * @param mutex Pointer to the mutex protecting the variable.
+ * @param variable Pointer to the variable to read.
+ * @return int Value of the variable, -1 on failure.
+ */
+int				read_mutex(pthread_mutex_t *mutex, int *variable);
+/**
+ * @brief Modify a variable protected by a mutex.
+ * 
+ * @param mutex Pointer to the mutex protecting the variable.
+ * @param variable Pointer to the variable to modify.
+ * @param new_value New value to set.
+ * @return int 0 on success, 1 on failure.
+ */
+int				modify_mutex(pthread_mutex_t *mutex, int *variable,
+					int new_value);
 // parsing.c
 /**
  * @brief Initialize the data structure.
@@ -156,7 +195,7 @@ int				start_threads(t_data *data);
  * 
  * @param[in, out] arg Pointer to the philosopher structure. Threads needs a 
  * void* argument.
- * @return void* 
+ * @return void* Return NULL when finished.
  */
 void			*discipline_punish(void *arg);
 /**
