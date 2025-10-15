@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/30 16:35:10 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/15 15:52:58 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/15 15:56:25 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,20 @@
 # include <errno.h>
 # include <stdarg.h>
 
+/**
+ * @brief Structure for each philosopher.
+ * 
+ * @note foucault name is a reference to Michel Foucault, a french philosopher
+ * who wrote about power structures and social dynamics, which can be linked to
+ * the dining philosophers problem.
+ * @param name Philosopher's number (starts at 1).
+ * @param thread The philosopher's thread.
+ * @param left_fork Pointer to the left fork mutex.
+ * @param right_fork Pointer to the right fork mutex.
+ * @param how_many_times_ate How many times the philosopher has eaten.
+ * @param last_meal_time Timestamp of the last meal time in milliseconds.
+ * @param data Pointer to the shared simulation data.
+ */
 typedef struct s_foucault	t_foucault;
 /**
  * @brief Structure for simulation data.
@@ -56,20 +70,6 @@ typedef struct s_data
 	pthread_t		monitor_thread;
 }	t_data;
 
-/**
- * @brief Structure for each philosopher.
- * 
- * @note foucault name is a reference to Michel Foucault, a french philosopher
- * who wrote about power structures and social dynamics, which can be linked to
- * the dining philosophers problem.
- * @param name Philosopher's number (starts at 1).
- * @param thread The philosopher's thread.
- * @param left_fork Pointer to the left fork mutex.
- * @param right_fork Pointer to the right fork mutex.
- * @param how_many_times_ate How many times the philosopher has eaten.
- * @param last_meal_time Timestamp of the last meal time in milliseconds.
- * @param data Pointer to the shared simulation data.
- */
 typedef struct s_foucault
 {
 	int				name;
@@ -99,7 +99,8 @@ bool			am_i_dead(t_foucault *philo);
  */
 bool			all_have_eaten(t_data *data);
 /**
- * @brief Monitoring function for philosopher threads. Will check if any philosopher is dead.
+ * @brief Monitoring function for philosopher threads. Will check if any
+ * philosopher is dead.
  * 
  * @param arg Pointer to the simulation data structure. Threads needs a void*
  * argument.
