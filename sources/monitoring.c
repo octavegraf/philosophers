@@ -6,13 +6,13 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 12:26:29 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/14 17:05:47 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/15 12:15:53 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../headers/philosophers.h"
 
-int	am_i_dead(t_foucault *philo)
+bool	am_i_dead(t_foucault *philo)
 {
 	struct timeval	current;
 	long long int	last_meal_ms;
@@ -30,9 +30,25 @@ int	am_i_dead(t_foucault *philo)
 		pthread_mutex_lock(&philo->data->print_mutex);
 		printf("%lld %d died\n", current_time(philo->data), philo->name);
 		pthread_mutex_unlock(&philo->data->print_mutex);
-		return (1);
+		return (true);
 	}
-	return (0);
+	return (false);
+}
+
+bool	all_have_eaten(t_data *data)
+{
+	int	i;
+
+	if (data->notepme == -1)
+		return (false);
+	i = 0;
+	while (i < data->nb)
+	{
+		if (data->foucault_array[i]->how_many_times_ate < data->notepme)
+			return (false);
+		i++;
+	}
+	return (true);
 }
 
 void	*monitoring(void *arg)
@@ -40,14 +56,16 @@ void	*monitoring(void *arg)
 	int		i;
 	t_data	*data;
 
-	i = -1;
 	data = (t_data *)arg;
-	while (++i < data->nb)
+	while (1)
 	{
-		if (am_i_dead(data->foucault_array[i]))
-			exit_all(data, 0);
-		if (i >= data->nb -1)
-			i = -1;
+		i = -1;
+		while (++i < data->nb)
+			if (am_i_dead(data->foucault_array[i]))
+				exit_all(data, 0);
+		if (all_have_eaten(data))
+			break ;
+		usleep(1000);
 	}
 	return (NULL);
 }
