@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 17:02:46 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/13 13:55:27 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/15 15:21:50 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,5 +70,34 @@ int	fork_handler(t_foucault *philo)
 		return (pthread_mutex_unlock(first_fork),
 			printf(ERROR3), exit_all(philo->data, 1), 1);
 	print_action(philo, "has taken a fork");
+	return (0);
+}
+
+int	read_mutex(pthread_mutex_t *mutex, int *variable)
+{
+	int	return_value;
+	int	value;
+
+	return_value = pthread_mutex_lock(mutex);
+	if (return_value != 0)
+		return (printf(ERROR3), -1);
+	value = *variable;
+	return_value = pthread_mutex_unlock(mutex);
+	if (return_value != 0)
+		return (printf(ERROR3), -1);
+	return (0);
+}
+
+int	modify_mutex(pthread_mutex_t *mutex, int *variable, int new_value)
+{
+	int	return_value;
+
+	return_value = pthread_mutex_lock(mutex);
+	if (return_value != 0)
+		return (printf(ERROR3), -1);
+	*variable = new_value;
+	return_value = pthread_mutex_unlock(mutex);
+	if (return_value != 0)
+		return (printf(ERROR3), -1);
 	return (0);
 }
