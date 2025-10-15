@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 11:48:26 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/14 16:51:58 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/15 16:02:51 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ int	create_foucaults(t_data *data)
 		memset(data->foucault_array[i], 0, sizeof(t_foucault));
 		data->foucault_array[i]->name = i + 1;
 		data->foucault_array[i]->data = data;
-		gettimeofday(&data->foucault_array[i]->last_meal_time, NULL);
+		gettimeofday(&data->foucault_array[i]->lmt, NULL);
 	}
 	return (0);
 }

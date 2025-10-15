@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/09 14:55:31 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/14 16:55:31 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/15 17:38:28 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,11 @@
 
 void	print_action(t_foucault *philo, char *action)
 {
-	pthread_mutex_lock(&philo->data->print_mutex);
-	printf("%lld\t%d\t%s.\n", current_time(philo->data), philo->name, action);
-	pthread_mutex_unlock(&philo->data->print_mutex);
+	if (pthread_mutex_lock(&philo->data->print_mutex))
+		return ;
+	printf("%lld %d %s.\n", current_time(philo->data), philo->name, action);
+	if (pthread_mutex_unlock(&philo->data->print_mutex))
+		return ;
 }
 
 long long int	current_time(t_data *data)

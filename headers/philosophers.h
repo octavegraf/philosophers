@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/30 16:35:10 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/15 15:56:25 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/15 16:39:20 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,10 +32,10 @@
  * the dining philosophers problem.
  * @param name Philosopher's number (starts at 1).
  * @param thread The philosopher's thread.
- * @param left_fork Pointer to the left fork mutex.
- * @param right_fork Pointer to the right fork mutex.
- * @param how_many_times_ate How many times the philosopher has eaten.
- * @param last_meal_time Timestamp of the last meal time in milliseconds.
+ * @param l_fork Pointer to the left fork mutex.
+ * @param r_fork Pointer to the right fork mutex.
+ * @param hmta How many timesHow many times the philosopher has eaten.
+ * @param lmt Timestamp of the "last meal time" in milliseconds.
  * @param data Pointer to the shared simulation data.
  */
 typedef struct s_foucault	t_foucault;
@@ -50,9 +50,13 @@ typedef struct s_foucault	t_foucault;
  * simulation stops when all have eaten at least this many times.
  * @param foucault Pointer to philosophers structures.
  * @param fork_array Pointer to array of mutex for forks.
- * @param print_mutex Mutex to avoid data races when printing.
- * @param start_mutex Mutex to control the start of the simulation.
+ * @param print_mutex Mutex to protect the printing.
+ * @param start_mutex Mutex to protect the start of the simulation.
  * @param simulation_started Boolean indicating if the simulation has started.
+ * @param start_time Timestamp of the start of the simulation.
+ * @param monitor_thread Thread for monitoring philosophers.
+ * @param sd Boolean indicating if someone dead.
+ * @param sd_mutex Mutex to protect the sd variable.
  */
 typedef struct s_data
 {
@@ -68,17 +72,19 @@ typedef struct s_data
 	bool			simulation_started;
 	struct timeval	start_time;
 	pthread_t		monitor_thread;
+	bool			sd;
+	pthread_mutex_t	sd_mutex;
 }	t_data;
 
 typedef struct s_foucault
 {
 	int				name;
 	pthread_t		thread;
-	pthread_mutex_t	*left_fork;
-	pthread_mutex_t	*right_fork;
-	int				how_many_times_ate;
+	pthread_mutex_t	*l_fork;
+	pthread_mutex_t	*r_fork;
+	int				hmta;
 	pthread_mutex_t	death_mutex;
-	struct timeval	last_meal_time;
+	struct timeval	lmt;
 	t_data			*data;
 }	t_foucault;
 

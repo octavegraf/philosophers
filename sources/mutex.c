@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 17:02:46 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/15 15:21:50 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/15 16:01:25 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,11 +36,11 @@ int	distribute_forks(t_data *data)
 	i = -1;
 	while (++i < data->nb)
 	{
-		data->foucault_array[i]->left_fork = data->fork_array[i];
+		data->foucault_array[i]->l_fork = data->fork_array[i];
 		if (i < data->nb - 1)
-			data->foucault_array[i]->right_fork = data->fork_array[i + 1];
+			data->foucault_array[i]->r_fork = data->fork_array[i + 1];
 		else
-			data->foucault_array[i]->right_fork = data->fork_array[0];
+			data->foucault_array[i]->r_fork = data->fork_array[0];
 	}
 	return (0);
 }
@@ -53,13 +53,13 @@ int	fork_handler(t_foucault *philo)
 
 	if (philo->name % 2 == 0)
 	{
-		first_fork = philo->left_fork;
-		second_fork = philo->right_fork;
+		first_fork = philo->l_fork;
+		second_fork = philo->r_fork;
 	}
 	else
 	{
-		first_fork = philo->right_fork;
-		second_fork = philo->left_fork;
+		first_fork = philo->r_fork;
+		second_fork = philo->l_fork;
 	}
 	return_value = pthread_mutex_lock(first_fork);
 	if (return_value != 0)
@@ -85,7 +85,7 @@ int	read_mutex(pthread_mutex_t *mutex, int *variable)
 	return_value = pthread_mutex_unlock(mutex);
 	if (return_value != 0)
 		return (printf(ERROR3), -1);
-	return (0);
+	return (value);
 }
 
 int	modify_mutex(pthread_mutex_t *mutex, int *variable, int new_value)
