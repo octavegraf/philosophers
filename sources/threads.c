@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/30 16:34:58 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/13 15:22:55 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/15 12:12:14 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,7 @@ void	*discipline_punish(void *arg)
 		if (return_value != 0)
 			exit_all(philo->data, 1);
 		print_action(philo, "is eating");
+		gettimeofday(&philo->last_meal_time, NULL);
 		usleep(philo->data->tte * 1000);
 		pthread_mutex_unlock(philo->left_fork);
 		pthread_mutex_unlock(philo->right_fork);
