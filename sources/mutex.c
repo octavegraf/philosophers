@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 17:02:46 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/15 16:01:25 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/16 15:41:40 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,14 +44,23 @@ int	distribute_forks(t_data *data)
 	}
 	return (0);
 }
+static int	fork_handler2(t_foucault *philo,
+		pthread_mutex_t *first_fork, pthread_mutex_t *second_fork);
 
 int	fork_handler(t_foucault *philo)
 {
 	pthread_mutex_t	*first_fork;
 	pthread_mutex_t	*second_fork;
-	int				return_value;
 
-	if (philo->name % 2 == 0)
+	if (philo->data->nb == 1)
+	{
+		pthread_mutex_lock(philo->l_fork);
+		print_action(philo, "has taken a fork");
+		better_usleep(philo->data->ttd, philo->data);
+		pthread_mutex_unlock(philo->l_fork);
+		return (1);
+	}
+	if (philo->name % 2 == 0 || philo->name == philo->data->nb)
 	{
 		first_fork = philo->l_fork;
 		second_fork = philo->r_fork;
@@ -61,43 +70,31 @@ int	fork_handler(t_foucault *philo)
 		first_fork = philo->r_fork;
 		second_fork = philo->l_fork;
 	}
+	if (fork_handler2(philo, first_fork, second_fork))
+		return (1);
+	return (0);
+}
+
+static int	fork_handler2(t_foucault *philo,
+	pthread_mutex_t *first_fork, pthread_mutex_t *second_fork)
+{
+	int	return_value;
+
 	return_value = pthread_mutex_lock(first_fork);
 	if (return_value != 0)
 		return (printf(ERROR3), exit_all(philo->data, 1), 1);
-	print_action(philo, "has taken a fork");
+	if (read_mutex(&philo->data->stop_mutex,
+			(int *)&philo->data->simulation_stopped)
+		|| print_action(philo, "has taken a fork"))
+		return (pthread_mutex_unlock(first_fork), 1);
 	return_value = pthread_mutex_lock(second_fork);
 	if (return_value != 0)
 		return (pthread_mutex_unlock(first_fork),
 			printf(ERROR3), exit_all(philo->data, 1), 1);
-	print_action(philo, "has taken a fork");
-	return (0);
-}
-
-int	read_mutex(pthread_mutex_t *mutex, int *variable)
-{
-	int	return_value;
-	int	value;
-
-	return_value = pthread_mutex_lock(mutex);
-	if (return_value != 0)
-		return (printf(ERROR3), -1);
-	value = *variable;
-	return_value = pthread_mutex_unlock(mutex);
-	if (return_value != 0)
-		return (printf(ERROR3), -1);
-	return (value);
-}
-
-int	modify_mutex(pthread_mutex_t *mutex, int *variable, int new_value)
-{
-	int	return_value;
-
-	return_value = pthread_mutex_lock(mutex);
-	if (return_value != 0)
-		return (printf(ERROR3), -1);
-	*variable = new_value;
-	return_value = pthread_mutex_unlock(mutex);
-	if (return_value != 0)
-		return (printf(ERROR3), -1);
+	if (read_mutex(&philo->data->stop_mutex,
+			(int *)&philo->data->simulation_stopped)
+		|| print_action(philo, "has taken a fork"))
+		return (pthread_mutex_unlock(first_fork),
+			pthread_mutex_unlock(second_fork), 1);
 	return (0);
 }

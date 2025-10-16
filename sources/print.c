@@ -6,19 +6,23 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/09 14:55:31 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/15 17:38:28 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/16 15:15:15 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../headers/philosophers.h"
 
-void	print_action(t_foucault *philo, char *action)
+int	print_action(t_foucault *philo, char *action)
 {
 	if (pthread_mutex_lock(&philo->data->print_mutex))
-		return ;
-	printf("%lld %d %s.\n", current_time(philo->data), philo->name, action);
+		return (1);
+	if (read_mutex(&philo->data->stop_mutex,
+			(int *)&philo->data->simulation_stopped))
+		return (pthread_mutex_unlock(&philo->data->print_mutex), 1);
+	printf("%lld %d %s\n", current_time(philo->data), philo->name, action);
 	if (pthread_mutex_unlock(&philo->data->print_mutex))
-		return ;
+		return (1);
+	return (0);
 }
 
 long long int	current_time(t_data *data)

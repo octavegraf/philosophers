@@ -1,6 +1,6 @@
 CC					=	cc
 CFLAGS				=	-Wall -Wextra -Werror
-F_SANITIZE			=	-fsanitize=thread
+#F_SANITIZE			=	-fsanitize=thread
 DEBUG_FLAGS			=	-g3 $(F_SANITIZE)
 NAME				=	philo
 HEADER_FOLDER		=	headers/

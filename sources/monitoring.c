@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 12:26:29 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/15 17:44:31 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/16 16:46:27 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,10 @@ bool	am_i_dead(t_foucault *philo)
 	long long int	time_since_meal;
 
 	gettimeofday(&current, NULL);
+	pthread_mutex_lock(&philo->death_mutex);
 	last_meal_ms = (long long int)(philo->lmt.tv_sec * 1000)
 		+ (philo->lmt.tv_usec / 1000);
+	pthread_mutex_unlock(&philo->death_mutex);
 	current_ms = (long long int)(current.tv_sec * 1000)
 		+ (current.tv_usec / 1000);
 	time_since_meal = current_ms - last_meal_ms;
@@ -29,46 +31,51 @@ bool	am_i_dead(t_foucault *philo)
 	{
 		pthread_mutex_lock(&philo->data->print_mutex);
 		printf("%lld %d died\n", current_time(philo->data), philo->name);
+		modify_mutex(&philo->data->stop_mutex,
+			(int *)&philo->data->simulation_stopped, true);
+		usleep(1000);
 		pthread_mutex_unlock(&philo->data->print_mutex);
-		modify_mutex(&philo->data->sd_mutex, (int *)&philo->data->sd, true);
 		return (true);
 	}
 	return (false);
 }
 
-bool	all_have_eaten(t_data *data)
+bool	am_i_full(t_foucault *philo)
 {
-	int	i;
+	int	meals;
 
-	if (data->notepme == -1)
+	if (philo->data->notepme == -1)
 		return (false);
-	i = 0;
-	while (i < data->nb)
-	{
-		if (read_mutex(&data->foucault_array[i]->death_mutex,
-				&data->foucault_array[i]->hmta) < data->notepme)
-			return (false);
-		i++;
-	}
-	return (true);
+	meals = read_mutex(&philo->death_mutex, &philo->hmta);
+	if (meals >= philo->data->notepme)
+		return (true);
+	return (false);
 }
 
 void	*monitoring(void *arg)
 {
 	int		i;
 	t_data	*data;
+	int		full_count;
+	int		notepme;
 
 	data = (t_data *)arg;
+	notepme = data->notepme;
 	while (1)
 	{
 		i = -1;
+		full_count = 0;
 		while (++i < data->nb)
+		{
 			if (am_i_dead(data->foucault_array[i]))
 				return (NULL);
-		if (all_have_eaten(data))
-			break ;
-		usleep(1000);
+			if (notepme != -1 && am_i_full(data->foucault_array[i]))
+				full_count++;
+		}
+		if (full_count == data->nb)
+			return (modify_mutex(&data->stop_mutex,
+					(int *)&data->simulation_stopped, true), NULL);
+		usleep(100);
 	}
 	return (NULL);
 }
-

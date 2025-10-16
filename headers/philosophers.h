@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/30 16:35:10 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/15 16:39:20 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/16 16:23:11 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,12 +51,12 @@ typedef struct s_foucault	t_foucault;
  * @param foucault Pointer to philosophers structures.
  * @param fork_array Pointer to array of mutex for forks.
  * @param print_mutex Mutex to protect the printing.
- * @param start_mutex Mutex to protect the start of the simulation.
  * @param simulation_started Boolean indicating if the simulation has started.
+ * @param start_mutex Mutex to protect the start of the simulation.
  * @param start_time Timestamp of the start of the simulation.
  * @param monitor_thread Thread for monitoring philosophers.
- * @param sd Boolean indicating if someone dead.
- * @param sd_mutex Mutex to protect the sd variable.
+ * @param simulation_stopped Boolean indicating if simulation stopped.
+ * @param stop_mutex Mutex to protect the stop variable.
  */
 typedef struct s_data
 {
@@ -68,12 +68,12 @@ typedef struct s_data
 	t_foucault		**foucault_array;
 	pthread_mutex_t	**fork_array;
 	pthread_mutex_t	print_mutex;
-	pthread_mutex_t	start_mutex;
 	bool			simulation_started;
+	pthread_mutex_t	start_mutex;
 	struct timeval	start_time;
 	pthread_t		monitor_thread;
-	bool			sd;
-	pthread_mutex_t	sd_mutex;
+	bool			simulation_stopped;
+	pthread_mutex_t	stop_mutex;
 }	t_data;
 
 typedef struct s_foucault
@@ -97,13 +97,12 @@ typedef struct s_foucault
  */
 bool			am_i_dead(t_foucault *philo);
 /**
- * @brief Check if all philosophers have eaten the required number of times.
- *
- * @param data Pointer to the simulation data.
- * @return true if all philosophers have eaten the required number of times,
- * false otherwise.
+ * @brief Check if a philosopher has eaten enough times.
+ * 
+ * @param philo Philosopher structure.
+ * @return true if the philosopher has eaten enough times, false otherwise.
  */
-bool			all_have_eaten(t_data *data);
+bool			am_i_full(t_foucault *philo);
 /**
  * @brief Monitoring function for philosopher threads. Will check if any
  * philosopher is dead.
@@ -129,6 +128,13 @@ int				create_forks(t_data *data);
  * @return int 0 on success, 1 on failure.
  */
 int				distribute_forks(t_data *data);
+/**
+ * @brief Handle fork acquisition for a philosopher.
+ * 
+ * @param[in, out] philo Philosopher structure.
+ * @return int 0 on success, 1 on failure.
+ */
+int				fork_handler(t_foucault *philo);
 /**
  * @brief Read a variable protected by a mutex.
  * 
@@ -157,6 +163,13 @@ int				modify_mutex(pthread_mutex_t *mutex, int *variable,
  * or NULL on failure.
  */
 t_data			*initialize_data(int argc, char **argv);
+/**
+ * @brief Create foucault array and initialize each philosopher.
+ * 
+ * @param[in, out] data Structure for simulation data.
+ * @return int 0 on success, 1 on failure.
+ */
+int				create_foucaults(t_data *data);
 
 // print.c
 /**
@@ -172,8 +185,9 @@ void			print_phrase(t_data *data, int size, ...);
  * 
  * @param[in] philo Philosopher structure.
  * @param[in] action String describing the action.
+ * @return int 0 on success, 1 on failure.
  */
-void			print_action(t_foucault *philo, char *action);
+int				print_action(t_foucault *philo, char *action);
 /**
  * @brief Get the current time since the start of the program.
  *
@@ -183,13 +197,6 @@ void			print_action(t_foucault *philo, char *action);
 long long int	current_time(t_data *data);
 
 //	threads.c
-/**
- * @brief Create foucault array and initialize each philosopher.
- * 
- * @param[in, out] data Structure for simulation data.
- * @return int 0 on success, 1 on failure.
- */
-int				create_foucaults(t_data *data);
 /**
  * @brief Start all philosopher threads.
  * 
@@ -206,27 +213,15 @@ int				start_threads(t_data *data);
  */
 void			*discipline_punish(void *arg);
 /**
- * @brief Handle fork acquisition for a philosopher.
+ * @brief Same as usleep but checks if someone is dead.
  * 
- * @param[in, out] philo Philosopher structure.
- * @return int 0 on success, 1 on failure.
+ * @param time_in_ms Time to sleep in milliseconds. (Value * 1000 for usleep)
+ * @param data Pointer to the simulation data structure.
+ * @return int 0 if nothing happened, 1 if someone is dead.
  */
-int				fork_handler(t_foucault *philo);
+int				better_usleep(int time_in_ms, t_data *data);
 
 //	utils.c
-/**
- * @brief Reproduce strlen function.
- * 
- * @param[in] str String to measure.
- * @return int Length of the string.
- */
-int				ft_strlen(char *str);
-/**
- * @brief Reproduce putstr function.
- * 
- * @param[in] str String to print.
- */
-void			ft_putstr(char *str);
 /**
  * @brief Reproduce isdigit function but for integers.
  * 
