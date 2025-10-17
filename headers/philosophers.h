@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/30 16:35:10 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/17 16:55:59 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/17 18:48:17 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,8 @@
  * @param thread The philosopher's thread.
  * @param l_fork Pointer to the left fork mutex.
  * @param r_fork Pointer to the right fork mutex.
- * @param hmta How many timesHow many times the philosopher has eaten.
+ * @param hmta How many times the philosopher has eaten.
+ * @param death_mutex Mutex to protect the philosopher's death status.
  * @param lmt Timestamp of the "last meal time" in milliseconds.
  * @param data Pointer to the shared simulation data.
  */
@@ -48,7 +49,7 @@ typedef struct s_foucault	t_foucault;
  * @param tts Time to sleep.
  * @param notepme Number of times each philosopher must eat. Optional,
  * simulation stops when all have eaten at least this many times.
- * @param foucault Pointer to philosophers structures.
+ * @param foucault_array Pointer to philosophers structures.
  * @param fork_array Pointer to array of mutex for forks.
  * @param print_mutex Mutex to protect the printing.
  * @param simulation_started Boolean indicating if the simulation has started.
@@ -76,6 +77,18 @@ typedef struct s_data
 	pthread_mutex_t	stop_mutex;
 }	t_data;
 
+/**
+ * @brief Structure for each philosopher (full definition).
+ * 
+ * @param name Philosopher's number (starts at 1).
+ * @param thread The philosopher's thread.
+ * @param l_fork Pointer to the left fork mutex.
+ * @param r_fork Pointer to the right fork mutex.
+ * @param hmta How many times the philosopher has eaten.
+ * @param death_mutex Mutex to protect the philosopher's death status.
+ * @param lmt Timestamp of the "last meal time".
+ * @param data Pointer to the shared simulation data.
+ */
 typedef struct s_foucault
 {
 	int				name;
@@ -181,7 +194,7 @@ int				create_foucaults(t_data *data);
  */
 void			print_phrase(t_data *data, int size, ...);
 /**
- * @brief Print an action of a philosopher with timescode.
+ * @brief Print an action of a philosopher with timestamp.
  * 
  * @param[in] philo Philosopher structure.
  * @param[in] action String describing the action.
@@ -243,6 +256,12 @@ long long int	ft_atol(const char *str);
  * @note Does not verify if the pointers exits.
  */
 void			free_it(void **array);
+/**
+ * @brief Get the current timestamp in milliseconds.
+ * 
+ * @return long long int Current timestamp in milliseconds.
+ */
+long long		get_time_ms(void);
 //	wrapper.c
 /**
  * @brief Free all allocated memory and exit the program.
@@ -258,5 +277,6 @@ void			exit_all(t_data *data, int exit_code);
 # define ERROR2 "Can't allocate memory.\n"
 # define ERROR3 "Error locking/unlocking mutex\n"
 # define ERROR4 "Error creating/destroying mutex\n"
+# define ERROR5 "Error creating thread\n"
 
 #endif

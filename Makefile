@@ -6,9 +6,17 @@ NAME				=	philo
 HEADER_FOLDER		=	headers/
 HEADER				=	$(HEADER_FOLDER)philosophers.h
 SRC_FOLDER			=	sources/
-SRC					=	$(wildcard $(SRC_FOLDER)*.c)
+SRC_FILES			=	monitoring.c \
+						mutex.c \
+						mutex2.c \
+						parsing.c \
+						print.c \
+						threads.c \
+						utils.c \
+						wrapper.c
+SRC					=	$(addprefix $(SRC_FOLDER), $(SRC_FILES))
 OBJ_FOLDER			=	objects/
-OBJ					=	$(SRC:$(SRC_FOLDER)%.c=$(OBJ_FOLDER)%.o)
+OBJ					=	$(addprefix $(OBJ_FOLDER), $(SRC_FILES:.c=.o))
 
 all					:	$(NAME)
 

@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/09 14:55:31 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/17 16:56:00 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/17 17:37:25 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,6 @@ long long int	current_time(t_data *data)
 	struct timeval	current_time;
 
 	gettimeofday(&current_time, NULL);
-	return ((((current_time.tv_sec - data->start_time.tv_sec) * 1000)
-			+ (current_time.tv_usec - data->start_time.tv_usec) / 1000));
+	return ((((current_time.tv_sec - data->start_time.tv_sec) * 1000LL)
+			+ (current_time.tv_usec - data->start_time.tv_usec) / 1000LL));
 }

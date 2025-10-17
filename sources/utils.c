@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/30 17:28:04 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/17 16:55:58 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/17 18:12:08 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,4 +75,12 @@ void	free_it(void **array)
 	}
 	free(array);
 	array = NULL;
+}
+
+long long	get_time_ms(void)
+{
+	struct timeval	tv;
+
+	gettimeofday(&tv, NULL);
+	return (tv.tv_sec * 1000LL + tv.tv_usec / 1000LL);
 }

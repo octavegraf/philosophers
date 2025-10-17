@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 17:02:46 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/16 15:41:40 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/17 18:24:47 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ int	fork_handler(t_foucault *philo)
 		pthread_mutex_unlock(philo->l_fork);
 		return (1);
 	}
-	if (philo->name % 2 == 0 || philo->name == philo->data->nb)
+	if (philo->l_fork < philo->r_fork)
 	{
 		first_fork = philo->l_fork;
 		second_fork = philo->r_fork;
