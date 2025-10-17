@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/30 16:34:58 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/16 16:55:28 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/17 16:55:56 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,21 +90,21 @@ int	better_usleep(int time_in_ms, t_data *data)
 {
 	struct timeval	start;
 	struct timeval	current;
-	long long int	start_ms;
-	long long int	current_ms;
+	long long int	elapsed;
+	long long int	target_time;
 
 	gettimeofday(&start, NULL);
-	start_ms = (long long int)(start.tv_sec * 1000) + (start.tv_usec / 1000);
+	target_time = (start.tv_sec * 1000LL) + (start.tv_usec / 1000LL)
+		+ time_in_ms;
 	while (1)
 	{
 		if (read_mutex(&data->stop_mutex, (int *)&data->simulation_stopped))
 			return (1);
 		gettimeofday(&current, NULL);
-		current_ms = (long long int)(current.tv_sec * 1000)
-			+ (current.tv_usec / 1000);
-		if (current_ms - start_ms >= time_in_ms)
+		elapsed = (current.tv_sec * 1000LL) + (current.tv_usec / 1000LL);
+		if (elapsed >= target_time)
 			return (0);
-		usleep(1000);
+		usleep(100);
 	}
 	return (0);
 }
