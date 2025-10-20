@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/30 16:35:10 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/17 18:48:17 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/20 17:54:58 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,29 +35,30 @@
  * @param l_fork Pointer to the left fork mutex.
  * @param r_fork Pointer to the right fork mutex.
  * @param hmta How many times the philosopher has eaten.
- * @param death_mutex Mutex to protect the philosopher's death status.
- * @param lmt Timestamp of the "last meal time" in milliseconds.
+ * @param death_mutex Mutex to protect the philosopher's last meal time.
+ * @param lmt Last meal time in milliseconds (relative to start_time).
  * @param data Pointer to the shared simulation data.
  */
 typedef struct s_foucault	t_foucault;
+
 /**
  * @brief Structure for simulation data.
  * 
  * @param nb Number of philosophers.
- * @param ttd Time to die.
- * @param tte Time to eat.
- * @param tts Time to sleep.
- * @param notepme Number of times each philosopher must eat. Optional,
- * simulation stops when all have eaten at least this many times.
- * @param foucault_array Pointer to philosophers structures.
- * @param fork_array Pointer to array of mutex for forks.
- * @param print_mutex Mutex to protect the printing.
- * @param simulation_started Boolean indicating if the simulation has started.
- * @param start_mutex Mutex to protect the start of the simulation.
- * @param start_time Timestamp of the start of the simulation.
- * @param monitor_thread Thread for monitoring philosophers.
- * @param simulation_stopped Boolean indicating if simulation stopped.
- * @param stop_mutex Mutex to protect the stop variable.
+ * @param ttd Time to die in milliseconds.
+ * @param tte Time to eat in milliseconds.
+ * @param tts Time to sleep in milliseconds.
+ * @param notepme Number of times each philosopher must eat. -1 if no limit.
+ * @param foucault_array Pointer to array of philosopher structures.
+ * @param fork_array Pointer to array of fork mutexes.
+ * @param print_mutex Mutex to protect printing.
+ * @param simulation_started Boolean indicating if simulation has started.
+ * @param start_mutex Mutex to protect simulation_started (unused, kept for
+ * compatibility).
+ * @param start_time Timestamp of simulation start in milliseconds.
+ * @param monitor_thread Thread ID for the monitoring thread.
+ * @param simulation_stopped Boolean indicating if simulation should stop.
+ * @param stop_mutex Mutex to protect simulation_stopped.
  */
 typedef struct s_data
 {
@@ -71,7 +72,7 @@ typedef struct s_data
 	pthread_mutex_t	print_mutex;
 	bool			simulation_started;
 	pthread_mutex_t	start_mutex;
-	struct timeval	start_time;
+	long long		start_time;
 	pthread_t		monitor_thread;
 	bool			simulation_stopped;
 	pthread_mutex_t	stop_mutex;
@@ -81,12 +82,12 @@ typedef struct s_data
  * @brief Structure for each philosopher (full definition).
  * 
  * @param name Philosopher's number (starts at 1).
- * @param thread The philosopher's thread.
+ * @param thread The philosopher's thread ID.
  * @param l_fork Pointer to the left fork mutex.
  * @param r_fork Pointer to the right fork mutex.
- * @param hmta How many times the philosopher has eaten.
- * @param death_mutex Mutex to protect the philosopher's death status.
- * @param lmt Timestamp of the "last meal time".
+ * @param hmta How many times this philosopher has eaten.
+ * @param death_mutex Mutex to protect last meal time updates.
+ * @param lmt Last meal time in milliseconds (relative to data->start_time).
  * @param data Pointer to the shared simulation data.
  */
 typedef struct s_foucault
@@ -97,71 +98,69 @@ typedef struct s_foucault
 	pthread_mutex_t	*r_fork;
 	int				hmta;
 	pthread_mutex_t	death_mutex;
-	struct timeval	lmt;
+	long long		lmt;
 	t_data			*data;
 }	t_foucault;
 
 //	monitoring.c
 /**
- * @brief Check if a philosopher is dead.
+ * @brief Check if a philosopher has died (no meal for time_to_die ms).
  * 
- * @param philo Philosopher structure.
- * @return True if the philosopher is dead, false otherwise.
+ * @param[in] philo Philosopher structure.
+ * @return true if the philosopher has died, false otherwise.
  */
 bool			am_i_dead(t_foucault *philo);
 /**
  * @brief Check if a philosopher has eaten enough times.
  * 
- * @param philo Philosopher structure.
- * @return true if the philosopher has eaten enough times, false otherwise.
+ * @param[in] philo Philosopher structure.
+ * @return true if philosopher has eaten enough times, false otherwise.
  */
 bool			am_i_full(t_foucault *philo);
 /**
- * @brief Monitoring function for philosopher threads. Will check if any
- * philosopher is dead.
+ * @brief Monitoring function for checking dead philosophers and simulation end.
  * 
- * @param arg Pointer to the simulation data structure. Threads needs a void*
- * argument.
- * @return void* Return NULL when finished.
+ * @param[in] arg Pointer to simulation data structure.
+ * @return void* Always returns NULL.
  */
 void			*monitoring(void *arg);
 
-//	mutex.c
+//	mutex.c and mutex2.c
 /**
- * @brief Create a forks array and initialize mutexes.
+ * @brief Create and initialize fork mutexes.
  * 
- * @param[in, out] data Structure for simulation data.
+ * @param[in, out] data Simulation data structure.
  * @return int 0 on success, 1 on failure.
  */
 int				create_forks(t_data *data);
 /**
- * @brief Distribute forks to t_foucault structures.
+ * @brief Assign forks to each philosopher.
  * 
- * @param[in, out] data Structure for simulation data.
+ * @param[in, out] data Simulation data structure.
  * @return int 0 on success, 1 on failure.
  */
 int				distribute_forks(t_data *data);
 /**
- * @brief Handle fork acquisition for a philosopher.
+ * @brief Acquire both forks for a philosopher (with deadlock prevention).
  * 
  * @param[in, out] philo Philosopher structure.
- * @return int 0 on success, 1 on failure.
+ * @return int 0 on success, 1 on failure or simulation stopped.
  */
 int				fork_handler(t_foucault *philo);
 /**
- * @brief Read a variable protected by a mutex.
+ * @brief Read a mutex-protected integer variable.
  * 
- * @param mutex Pointer to the mutex protecting the variable.
- * @param variable Pointer to the variable to read.
- * @return int Value of the variable, -1 on failure.
+ * @param[in] mutex Pointer to the mutex protecting the variable.
+ * @param[in] variable Pointer to the variable to read.
+ * @return int The value of the variable.
  */
 int				read_mutex(pthread_mutex_t *mutex, int *variable);
 /**
- * @brief Modify a variable protected by a mutex.
+ * @brief Modify a mutex-protected integer variable.
  * 
- * @param mutex Pointer to the mutex protecting the variable.
- * @param variable Pointer to the variable to modify.
- * @param new_value New value to set.
+ * @param[in] mutex Pointer to the mutex protecting the variable.
+ * @param[in] variable Pointer to the variable to modify.
+ * @param[in] new_value New value to set.
  * @return int 0 on success, 1 on failure.
  */
 int				modify_mutex(pthread_mutex_t *mutex, int *variable,
@@ -177,22 +176,14 @@ int				modify_mutex(pthread_mutex_t *mutex, int *variable,
  */
 t_data			*initialize_data(int argc, char **argv);
 /**
- * @brief Create foucault array and initialize each philosopher.
+ * @brief Create and initialize philosopher structures.
  * 
- * @param[in, out] data Structure for simulation data.
+ * @param[in, out] data Simulation data structure.
  * @return int 0 on success, 1 on failure.
  */
 int				create_foucaults(t_data *data);
 
 // print.c
-/**
- * @brief Print a formatted message respecting mutex locking.
- * 
- * @param[in] size Number of arguments to print.
- * @param[in, out] data Structure for simulation data.
- * @param[in] ... Arguments to print.
- */
-void			print_phrase(t_data *data, int size, ...);
 /**
  * @brief Print an action of a philosopher with timestamp.
  * 
@@ -205,7 +196,7 @@ int				print_action(t_foucault *philo, char *action);
  * @brief Get the current time since the start of the program.
  *
  * @param[in] data Pointer to the simulation data structure.
- * @return long long int Current time in milliseconds.
+ * @return long long int Current time in milliseconds since simulation start.
  */
 long long int	current_time(t_data *data);
 
@@ -218,55 +209,53 @@ long long int	current_time(t_data *data);
  */
 int				start_threads(t_data *data);
 /**
- * @brief Philosopher's routine function.
+ * @brief Philosopher's main routine function.
  * 
- * @param[in, out] arg Pointer to the philosopher structure. Threads needs a 
- * void* argument.
- * @return void* Return NULL when finished.
+ * @param[in] arg Pointer to philosopher structure (cast from void*).
+ * @return void* Always returns NULL when thread exits.
  */
 void			*discipline_punish(void *arg);
 /**
- * @brief Same as usleep but checks if someone is dead.
+ * @brief Sleep for a specified time while checking if simulation stopped.
  * 
- * @param time_in_ms Time to sleep in milliseconds. (Value * 1000 for usleep)
- * @param data Pointer to the simulation data structure.
- * @return int 0 if nothing happened, 1 if someone is dead.
+ * @param[in] time_in_ms Time to sleep in milliseconds.
+ * @param[in] data Pointer to simulation data (for checking stop condition).
+ * @return int 0 if sleep completed, 1 if simulation stopped during sleep.
  */
 int				better_usleep(int time_in_ms, t_data *data);
 
 //	utils.c
 /**
- * @brief Reproduce isdigit function but for integers.
+ * @brief Check if a string represents a valid positive integer.
  * 
  * @param[in] str String to check.
- * @return int 1 if the string is a valid integer, 0 otherwise.
+ * @return int 1 if valid positive integer, 0 otherwise.
  */
 int				ft_isint(char *str);
 /**
- * @brief Reproduce atol function.
+ * @brief Convert a string to a long long integer.
  * 
  * @param[in] str String to convert.
  * @return long long int Converted value.
  */
 long long int	ft_atol(const char *str);
 /**
- * @brief Free a double pointer array.
+ * @brief Free a dynamically allocated array of pointers.
  * 
- * @param[in, out] array Double pointer array to free.
- * @note Does not verify if the pointers exits.
+ * @param[in, out] array Array of pointers to free.
  */
 void			free_it(void **array);
 /**
- * @brief Get the current timestamp in milliseconds.
+ * @brief Get current timestamp in milliseconds since epoch.
  * 
- * @return long long int Current timestamp in milliseconds.
+ * @return long long Current time in milliseconds.
  */
 long long		get_time_ms(void);
 //	wrapper.c
 /**
- * @brief Free all allocated memory and exit the program.
+ * @brief Clean up all resources and exit the program.
  * 
- * @param[in, out] data Structure for simulation data.
+ * @param[in] data Simulation data structure (will be freed).
  * @param[in] exit_code Exit code to return.
  */
 void			exit_all(t_data *data, int exit_code);

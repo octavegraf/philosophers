@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/30 17:26:55 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/16 16:20:03 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/20 17:53:39 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,11 +54,9 @@ int	main(int argc, char **argv)
 	create_foucaults(data);
 	create_forks(data);
 	distribute_forks(data);
+	data->start_time = get_time_ms();
 	start_threads(data);
 	pthread_create(&data->monitor_thread, NULL, monitoring, data);
-	pthread_mutex_lock(&data->start_mutex);
-	data->simulation_started = true;
-	pthread_mutex_unlock(&data->start_mutex);
 	pthread_join(data->monitor_thread, NULL);
 	i = -1;
 	while (++i < data->nb)

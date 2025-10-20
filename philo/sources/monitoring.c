@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 12:26:29 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/17 18:43:00 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/20 17:17:00 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,24 +14,19 @@
 
 bool	am_i_dead(t_foucault *philo)
 {
-	struct timeval	current;
 	long long int	last_meal_ms;
 	long long int	current_ms;
 	long long int	time_since_meal;
 
-	gettimeofday(&current, NULL);
 	pthread_mutex_lock(&philo->death_mutex);
-	last_meal_ms = ((philo->lmt.tv_sec - philo->data->start_time.tv_sec)
-			* 1000LL) + ((philo->lmt.tv_usec - philo->data->start_time.tv_usec)
-			/ 1000LL);
+	last_meal_ms = philo->lmt;
 	pthread_mutex_unlock(&philo->death_mutex);
-	current_ms = ((current.tv_sec - philo->data->start_time.tv_sec) * 1000LL)
-		+ ((current.tv_usec - philo->data->start_time.tv_usec) / 1000LL);
+	current_ms = get_time_ms() - philo->data->start_time;
 	time_since_meal = current_ms - last_meal_ms;
 	if (time_since_meal >= philo->data->ttd)
 	{
 		pthread_mutex_lock(&philo->data->print_mutex);
-		printf("%lld %d died\n", current_time(philo->data), philo->name);
+		printf("%lld %d died\n", current_ms, philo->name);
 		modify_mutex(&philo->data->stop_mutex,
 			(int *)&philo->data->simulation_stopped, true);
 		usleep(1000);
@@ -47,7 +42,9 @@ bool	am_i_full(t_foucault *philo)
 
 	if (philo->data->notepme == -1)
 		return (false);
-	meals = read_mutex(&philo->death_mutex, &philo->hmta);
+	pthread_mutex_lock(&philo->death_mutex);
+	meals = philo->hmta;
+	pthread_mutex_unlock(&philo->death_mutex);
 	if (meals >= philo->data->notepme)
 		return (true);
 	return (false);
