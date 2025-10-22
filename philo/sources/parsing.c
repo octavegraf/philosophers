@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 11:48:26 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/20 18:11:59 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/22 15:29:15 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ t_data	*initialize_data(int argc, char **argv)
 	memset(data, 0, sizeof(t_data));
 	while (argv[++i] && i < argc)
 		if (!ft_isint(argv[i]) || !ft_atol(argv[i]))
-			return (printf(ERROR1), exit_all(data, 1), NULL);
+			return (printf(ERROR1), free(data), exit(1), NULL);
 	data->nb = ft_atol(argv[1]);
 	data->ttd = ft_atol(argv[2]);
 	data->tte = ft_atol(argv[3]);
