@@ -6,7 +6,7 @@
 /*   By: ocgraf <ocgraf@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/30 16:34:58 by ocgraf            #+#    #+#             */
-/*   Updated: 2025/10/20 18:00:37 by ocgraf           ###   ########.fr       */
+/*   Updated: 2025/10/21 14:26:35 by ocgraf           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,11 +34,10 @@ void	*discipline_punish(void *arg)
 	int			return_value;
 
 	philo = (t_foucault *)arg;
-	pthread_mutex_lock(&philo->death_mutex);
-	philo->lmt = get_time_ms() - philo->data->start_time;
-	pthread_mutex_unlock(&philo->death_mutex);
-	if (philo->name % 2 == 0)
-		usleep(100);
+	modify_mutex(&philo->death_mutex, (int *)&philo->lmt,
+		get_time_ms() - philo->data->start_time);
+	if (philo->name % 2 != 0)
+		usleep((philo->data->tte * 2 - philo->data->tts) * 1000);
 	while (philo->data->notepme == -1 || philo->hmta < philo->data->notepme)
 	{
 		if (read_mutex(&philo->data->stop_mutex,
