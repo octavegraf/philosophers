@@ -87,6 +87,9 @@ static int	fork_handler2(t_foucault *philo,
 			(int *)&philo->data->simulation_stopped)
 		|| print_action(philo, "has taken a fork"))
 		return (pthread_mutex_unlock(first_fork), 1);
+	if (read_mutex(&philo->data->stop_mutex,
+			(int *)&philo->data->simulation_stopped))
+		return (pthread_mutex_unlock(first_fork), 1);
 	return_value = pthread_mutex_lock(second_fork);
 	if (return_value != 0)
 		return (pthread_mutex_unlock(first_fork),
